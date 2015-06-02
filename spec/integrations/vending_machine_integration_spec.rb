@@ -1,5 +1,9 @@
 require 'vending_machine'
 
+# As a vendor
+# I want a vending machine that accepts coins
+# So that I can collect money from the customer
+
 describe VendingMachine do
   it 'can handle a sequence of invalid and valid coins' do
     subject.insert 'llama'
