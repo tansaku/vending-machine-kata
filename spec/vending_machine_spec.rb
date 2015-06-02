@@ -36,4 +36,18 @@ describe VendingMachine do
   it 'displays INSERT COIN when no coins inserted' do
     expect(subject.display).to eq 'INSERT COIN'
   end
+  it { is_expected.to respond_to(:hopper) }
+  it 'has buttons to vend products' do
+    subject.insert '25'
+    subject.insert '25'
+    subject.insert '25'
+    subject.insert '25'
+    subject.button 'cola'
+    expect(subject.display).to eq 'THANK YOU'
+    expect(subject.display).to eq 'INSERT COIN'
+    class VendingMachine; attr_reader :coins; end
+    expect(subject.coins).to eq []
+  end
 end
+
+
