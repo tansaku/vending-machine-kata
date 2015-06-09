@@ -45,9 +45,46 @@ describe VendingMachine do
     subject.button 'cola'
     expect(subject.display).to eq 'THANK YOU'
     expect(subject.display).to eq 'INSERT COIN'
-    class VendingMachine; attr_reader :coins; end
-    expect(subject.coins).to eq []
+    expect(subject.send(:coins)).to eq []
+  end
+  it 'will not vend products without sufficient payment' do
+    subject.button 'cola'
+    expect(subject.display).to eq 'PRICE 100'
+  end
+  it 'will not vend products without sufficient payment' do
+    subject.button 'chips'
+    expect(subject.display).to eq 'PRICE 50'
+  end
+  it 'will reset display after insufficient payment' do
+    subject.insert '25'
+    subject.insert '25'
+    subject.button 'cola'
+    subject.display
+    expect(subject.display).to eq '50 cents'
+  end
+  it 'will reset display after no payment' do
+    subject.button 'cola'
+    subject.display
+    expect(subject.display).to eq 'INSERT COIN'
+  end
+  it 'dispense some chips if correct amount is given' do
+    subject.insert '25'
+    subject.insert '25'
+    subject.button 'chips'
+    expect(subject.hopper.name).to eq 'chips'
+  end  
+  it 'successful purchase leads to a thankyou' do
+    subject.insert '25'
+    subject.insert '25'
+    subject.button 'chips'
+    expect(subject.display).to eq 'THANK YOU'
+  end
+  it 'selecting invalid product does not update display' do
+    subject.button 'kitkat'
+    expect(subject.display).to eq 'INSERT COIN'
+  end
+  it 'selecting invalid product does dispense that product' do
+    subject.button 'kitkat'
+    expect(subject.hopper).to be nil
   end
 end
-
-
