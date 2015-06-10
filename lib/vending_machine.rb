@@ -1,9 +1,8 @@
 require_relative 'product'
 
 class VendingMachine
-
   VALID_COINS = ['5', '10', '25']
-  VALID_PRODUCTS = [Product.new('cola', 100), 
+  VALID_PRODUCTS = [Product.new('cola', 100),
                     Product.new('chips', 50),
                     Product.new('candy', 65)]
 
@@ -14,6 +13,7 @@ class VendingMachine
     self.coins = []
     self.ready_to_reset = false
     self.ready_to_insufficient_payment_reset = false
+    self.payment_sufficient = false
   end
 
   def display
@@ -34,25 +34,27 @@ class VendingMachine
   def button product_name
     @product_name = product_name
     select_product
-    vend 
+    vend
   end
 
   protected
 
-  attr_reader :coins, 
-              :product, 
-              :ready_to_reset, 
-              :ready_to_insufficient_payment_reset
+  attr_reader :coins,
+              :product,
+              :ready_to_reset,
+              :ready_to_insufficient_payment_reset,
+              :payment_sufficient
 
-  private 
+  private
 
-  attr_writer :display, 
-              :coin_return, 
+  attr_writer :display,
+              :coin_return,
               :coins,
-              :product, 
-              :hopper, 
-              :ready_to_reset, 
-              :ready_to_insufficient_payment_reset
+              :product,
+              :hopper,
+              :ready_to_reset,
+              :ready_to_insufficient_payment_reset,
+              :payment_sufficient
 
   def select_product
     name_match = -> (p) { p.name == @product_name }
@@ -60,27 +62,50 @@ class VendingMachine
   end
 
   def vend
-    if self.product
-      update_display
-      dispense_product
-    end
-  end
-
-  def dispense_product
-    self.hopper = self.product if total == product.price
-  end
-
-  def total 
-    self.coins.map(&:to_i).inject(:+)
+    return unless self.product
+    dispense_product 
+    make_change
+    update_display
   end
 
   def update_display
-    self.display = total == self.product.price ? 'THANK YOU' : "PRICE #{product.price}"
+    self.display = payment_sufficient? ? 'THANK YOU' : "PRICE #{product.price}"
+  end
+
+  def dispense_product
+    self.hopper = self.product if payment_sufficient?
+  end
+
+  def make_change
+    return if total <= self.product.price
+    coins.sort! {|a,b| b.to_i <=> a.to_i}
+    coin_values = coins.map(&:to_i)
+    remainder = 0
+    used_coins = []
+    coin_values.each do |coin|
+      remainder = self.product.price - (used_coins.inject(:+) || 0) - coin
+      break if remainder < 0
+      used_coins << coin
+    end
+    used_coins.each do |coin| 
+      coins.delete_at(coin_values.index(coin)) 
+      coin_values.delete_at(coin_values.index(coin))
+    end
+    coins.delete_at(coin_values.index(-remainder))
+    self.coin_return = coins.first
+  end
+
+  def total
+    self.coins.map(&:to_i).inject(:+) || 0
+  end
+
+  def payment_sufficient?
+    @payment_sufficient ||= total >= self.product.price
   end
 
   def handle_insufficient_payment_state
     if self.ready_to_insufficient_payment_reset
-      self.display = total ? "#{total} cents" : 'INSERT COIN'
+      self.display = total > 0 ? "#{total} cents" : 'INSERT COIN'
       self.ready_to_insufficient_payment_reset = false
     end
     self.ready_to_insufficient_payment_reset = true if @display.start_with? 'PRICE'
@@ -90,5 +115,4 @@ class VendingMachine
     initialize if self.ready_to_reset
     self.ready_to_reset = true if @display == 'THANK YOU'
   end
-
 end

@@ -47,11 +47,11 @@ describe VendingMachine do
     expect(subject.display).to eq 'INSERT COIN'
     expect(subject.send(:coins)).to eq []
   end
-  it 'will not vend products without sufficient payment' do
+  it 'will not vend cola without sufficient payment' do
     subject.button 'cola'
     expect(subject.display).to eq 'PRICE 100'
   end
-  it 'will not vend products without sufficient payment' do
+  it 'will not vend chips without sufficient payment' do
     subject.button 'chips'
     expect(subject.display).to eq 'PRICE 50'
   end
@@ -72,7 +72,7 @@ describe VendingMachine do
     subject.insert '25'
     subject.button 'chips'
     expect(subject.hopper.name).to eq 'chips'
-  end  
+  end
   it 'successful purchase leads to a thankyou' do
     subject.insert '25'
     subject.insert '25'
@@ -86,5 +86,25 @@ describe VendingMachine do
   it 'selecting invalid product does dispense that product' do
     subject.button 'kitkat'
     expect(subject.hopper).to be nil
+  end
+  context 'related to Make Change Feature' do
+    it 'will dispense product after overpayment' do
+      subject.insert '25'
+      subject.insert '25'
+      subject.insert '10'
+      subject.insert '10'
+      subject.insert '5'
+      subject.button 'candy'
+      expect(subject.hopper.name).to eq 'candy'
+    end
+    it 'will return coins given overpayment' do
+      subject.insert '25'
+      subject.insert '25'
+      subject.insert '10'
+      subject.insert '10'
+      subject.insert '5'
+      subject.button 'candy'
+      expect(subject.coin_return).to eq '10'
+    end
   end
 end
