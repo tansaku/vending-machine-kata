@@ -32,7 +32,7 @@ class VendingMachine
   end
 
   def button product_name
-    @product_name = product_name
+    self.product_name = product_name
     select_product
     vend
   end
@@ -43,7 +43,8 @@ class VendingMachine
               :product,
               :ready_to_reset,
               :ready_to_insufficient_payment_reset,
-              :payment_sufficient
+              :payment_sufficient,
+              :product_name
 
   attr_writer :display,
               :coin_return,
@@ -52,10 +53,11 @@ class VendingMachine
               :hopper,
               :ready_to_reset,
               :ready_to_insufficient_payment_reset,
-              :payment_sufficient
+              :payment_sufficient,
+              :product_name
 
   def select_product
-    name_match = -> (p) { p.name == @product_name }
+    name_match = -> (p) { p.name == product_name }
     self.product = VALID_PRODUCTS.select(&name_match).first
   end
 
