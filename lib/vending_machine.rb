@@ -1,16 +1,16 @@
 require_relative 'product'
+require_relative 'coin_manager'
 
 class VendingMachine
-  VALID_COINS = ['5', '10', '25']
   VALID_PRODUCTS = [Product.new('cola', 100),
                     Product.new('chips', 50),
                     Product.new('candy', 65)]
 
   attr_reader :coin_return, :hopper
 
-  def initialize
+  def initialize coin_manager_klass = CoinManager
     self.display = 'INSERT COIN'
-    self.coins = []
+    self.coin_manager = coin_manager_klass.new
     self.ready_to_reset = false
     self.ready_to_insufficient_payment_reset = false
     self.payment_sufficient = false
@@ -23,12 +23,8 @@ class VendingMachine
   end
 
   def insert coin
-    if VALID_COINS.include? coin
-      coins.push(coin)
-      self.display = "#{total} cents"
-    else
-      self.coin_return = coin
-    end
+    self.display = "#{coin_manager.total} cents" if coin_manager.insert coin
+    self.coin_return = coin_manager.coin_return
   end
 
   def button product_name
@@ -39,22 +35,16 @@ class VendingMachine
 
   private
 
-  attr_reader :coins,
-              :product,
-              :ready_to_reset,
-              :ready_to_insufficient_payment_reset,
-              :payment_sufficient,
-              :product_name
-
   attr_writer :display,
               :coin_return,
-              :coins,
-              :product,
-              :hopper,
-              :ready_to_reset,
-              :ready_to_insufficient_payment_reset,
-              :payment_sufficient,
-              :product_name
+              :hopper
+
+  attr_accessor :product,
+                :ready_to_reset,
+                :ready_to_insufficient_payment_reset,
+                :payment_sufficient,
+                :product_name,
+                :coin_manager
 
   def select_product
     name_match = -> (p) { p.name == product_name }
@@ -64,7 +54,8 @@ class VendingMachine
   def vend
     return unless product
     dispense_product
-    make_change
+    coin_manager.make_change product.price
+    self.coin_return = coin_manager.coin_return
     update_display
   end
 
@@ -76,36 +67,13 @@ class VendingMachine
     self.hopper = product if payment_sufficient?
   end
 
-  def make_change
-    return if total <= product.price
-    coins.sort! {|a,b| b.to_i <=> a.to_i}
-    coin_values = coins.map(&:to_i)
-    remainder = 0
-    used_coins = []
-    coin_values.each do |coin|
-      remainder = product.price - (used_coins.inject(:+) || 0) - coin
-      break if remainder < 0
-      used_coins << coin
-    end
-    used_coins.each do |coin| 
-      coins.delete_at(coin_values.index(coin)) 
-      coin_values.delete_at(coin_values.index(coin))
-    end
-    coins.delete_at(coin_values.index(-remainder))
-    self.coin_return = coins.first
-  end
-
-  def total
-    coins.map(&:to_i).inject(:+) || 0
-  end
-
   def payment_sufficient?
-    @payment_sufficient ||= total >= product.price
+    @payment_sufficient ||= coin_manager.total >= product.price
   end
 
   def handle_insufficient_payment_state
     if ready_to_insufficient_payment_reset
-      self.display = total > 0 ? "#{total} cents" : 'INSERT COIN'
+      self.display = coin_manager.total > 0 ? "#{coin_manager.total} cents" : 'INSERT COIN'
       self.ready_to_insufficient_payment_reset = false
     end
     self.ready_to_insufficient_payment_reset = true if @display.start_with? 'PRICE'

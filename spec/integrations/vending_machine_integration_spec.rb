@@ -25,7 +25,10 @@ describe VendingMachine do
       expect(subject.hopper.name).to eq 'cola'
       expect(subject.display).to eq 'THANK YOU'
       expect(subject.display).to eq 'INSERT COIN'
-      expect(subject.send(:coins)).to eq []
+      # consider helper method TODO
+      subject.button 'cola'
+      expect(subject.display).to eq 'PRICE 100'
+      expect(subject.display).to eq 'INSERT COIN'
     end
     it 'dispense another product (candy)' do
       subject.insert '25'
@@ -36,7 +39,10 @@ describe VendingMachine do
       expect(subject.hopper.name).to eq 'candy'
       expect(subject.display).to eq 'THANK YOU'
       expect(subject.display).to eq 'INSERT COIN'
-      expect(subject.send(:coins)).to eq []
+      # consider helper method TODO
+      subject.button 'candy'
+      expect(subject.display).to eq 'PRICE 65'
+      expect(subject.display).to eq 'INSERT COIN'
     end
     it 'does not dispense a product with insufficient payment' do
       subject.insert '25'
@@ -57,7 +63,10 @@ describe VendingMachine do
       expect(subject.hopper.name).to eq 'chips'
       expect(subject.display).to eq 'THANK YOU'
       expect(subject.display).to eq 'INSERT COIN'
-      expect(subject.send(:coins)).to eq []
+      # consider helper method TODO
+      subject.button 'chips'
+      expect(subject.display).to eq 'PRICE 50'
+      expect(subject.display).to eq 'INSERT COIN'
     end
     it 'will not allow the purchase of invalid products' do
       subject.button 'kitkat'
@@ -77,7 +86,6 @@ describe VendingMachine do
       expect(subject.display).to eq 'THANK YOU'
       expect(subject.display).to eq 'INSERT COIN'
       expect(subject.coin_return).to eq '10'
-      expect(subject.send(:coins)).to eq []
     end
   end
 end
