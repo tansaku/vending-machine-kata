@@ -1,5 +1,7 @@
+require_relative 'coin'
+
 class CoinManager
-  VALID_COINS = %w{5 10 25}
+  VALID_COINS = [Coin::NICKEL, Coin::DIME, Coin::QUARTER]
 
   attr_reader :coin_return
 
@@ -7,8 +9,8 @@ class CoinManager
     self.coins = []
   end
 
-  def total
-    coins.map(&:to_i).inject(:+) || 0
+  def total coin_array = coins
+    coin_array.map(&:value).inject(:+) || 0
   end
 
   def insert coin
@@ -23,20 +25,16 @@ class CoinManager
 
   def make_change price
     return if total <= price
-    coins.sort! {|a,b| b.to_i <=> a.to_i}
-    coin_values = coins.map(&:to_i)
+    coins.sort! { |a,b| b.value <=> a.value }
     remainder = 0
     used_coins = []
-    coin_values.each do |coin|
-      remainder = price - (used_coins.inject(:+) || 0) - coin
+    while true  
+      coin = coins[0]
+      remainder = price - total(used_coins) - coin.value
       break if remainder < 0
-      used_coins << coin
+      used_coins << coins.shift
     end
-    used_coins.each do |coin| 
-      coins.delete_at(coin_values.index(coin)) 
-      coin_values.delete_at(coin_values.index(coin))
-    end
-    coins.delete_at(coin_values.index(-remainder))
+    coins.delete coins.select { |c| c.value == -remainder }
     self.coin_return = coins.first
   end
   

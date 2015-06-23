@@ -6,21 +6,21 @@ describe CoinManager do
   end
   context 'valid coins' do
     it 'accepts a nickel and updates total' do
-      subject.insert '5'
+      subject.insert Coin::NICKEL
       expect(subject.total).to eq 5
     end
     it 'accepts a dime and updates total' do
-      subject.insert '10'
+      subject.insert Coin::DIME
       expect(subject.total).to eq 10
     end
     it 'accepts a quarter and updates total' do
-      subject.insert '25'
+      subject.insert Coin::QUARTER
       expect(subject.total).to eq 25
     end
     it 'accepts coin combo and updates total' do
-      subject.insert '5'
-      subject.insert '10'
-      subject.insert '25'
+      subject.insert Coin::NICKEL
+      subject.insert Coin::DIME
+      subject.insert Coin::QUARTER
       expect(subject.total).to eq 40
     end
   end
@@ -36,23 +36,24 @@ describe CoinManager do
   end
   describe '#make_change' do
     it 'return coins given overpayment' do
-      subject.insert '25'
-      subject.insert '25'
-      subject.insert '10'
-      subject.insert '10'
-      subject.insert '5'
+      subject.insert Coin::QUARTER
+      subject.insert Coin::QUARTER
+      subject.insert Coin::DIME
+      subject.insert Coin::DIME
+      subject.insert Coin::NICKEL
       subject.make_change 65
-      expect(subject.coin_return).to eq '10'
+      expect(subject.coin_return).to eq Coin::DIME
     end
     it 'return coins given overpayment' do
-      subject.insert '25'
-      subject.insert '25'
-      subject.insert '25'
-      subject.insert '10'
-      subject.insert '5'
+      subject.insert Coin::QUARTER
+      subject.insert Coin::QUARTER
+      subject.insert Coin::QUARTER
+      subject.insert Coin::DIME
+      subject.insert Coin::NICKEL
       subject.make_change 65
-      expect(subject.coin_return).to eq '25'
+      expect(subject.coin_return).to eq Coin::QUARTER
     end
     xit 'manage multiple coin overpayment'
+    xit 'manage coins in ascending order'
   end
 end

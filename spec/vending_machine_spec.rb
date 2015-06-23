@@ -3,21 +3,21 @@ require 'vending_machine'
 describe VendingMachine do
   context 'valid coins' do
     it 'accepts a nickel and updates display' do
-      subject.insert '5'
+      subject.insert Coin::NICKEL
       expect(subject.display).to eq '5 cents'
     end
     it 'accepts a dime and updates display' do
-      subject.insert '10'
+      subject.insert Coin::DIME
       expect(subject.display).to eq '10 cents'
     end
     it 'accepts a quarter and updates display' do
-      subject.insert '25'
+      subject.insert Coin::QUARTER
       expect(subject.display).to eq '25 cents'
     end
     it 'accepts coin combo and updates display' do
-      subject.insert '5'
-      subject.insert '10'
-      subject.insert '25'
+      subject.insert Coin::NICKEL
+      subject.insert Coin::DIME
+      subject.insert Coin::QUARTER
       expect(subject.display).to eq '40 cents'
     end
   end
@@ -38,10 +38,7 @@ describe VendingMachine do
   end
   it { is_expected.to respond_to(:hopper) }
   it 'has buttons to vend products' do
-    subject.insert '25'
-    subject.insert '25'
-    subject.insert '25'
-    subject.insert '25'
+    4.times{ subject.insert Coin::QUARTER }
     subject.button 'cola'
     expect(subject.display).to eq 'THANK YOU'
     expect(subject.display).to eq 'INSERT COIN'
@@ -55,8 +52,7 @@ describe VendingMachine do
     expect(subject.display).to eq 'PRICE 50'
   end
   it 'will reset display after insufficient payment' do
-    subject.insert '25'
-    subject.insert '25'
+    2.times { subject.insert Coin::QUARTER }
     subject.button 'cola'
     subject.display
     expect(subject.display).to eq '50 cents'
@@ -67,14 +63,12 @@ describe VendingMachine do
     expect(subject.display).to eq 'INSERT COIN'
   end
   it 'dispense some chips if correct amount is given' do
-    subject.insert '25'
-    subject.insert '25'
+    2.times { subject.insert Coin::QUARTER }
     subject.button 'chips'
     expect(subject.hopper.name).to eq 'chips'
   end
   it 'successful purchase leads to a thankyou' do
-    subject.insert '25'
-    subject.insert '25'
+    2.times { subject.insert Coin::QUARTER }
     subject.button 'chips'
     expect(subject.display).to eq 'THANK YOU'
   end
@@ -88,22 +82,18 @@ describe VendingMachine do
   end
   context 'related to Make Change Feature' do
     it 'will dispense product after overpayment' do
-      subject.insert '25'
-      subject.insert '25'
-      subject.insert '10'
-      subject.insert '10'
-      subject.insert '5'
+      2.times { subject.insert Coin::QUARTER }
+      2.times { subject.insert Coin::DIME }
+      subject.insert Coin::NICKEL
       subject.button 'candy'
       expect(subject.hopper.name).to eq 'candy'
     end
     it 'will return coins given overpayment' do
-      subject.insert '25'
-      subject.insert '25'
-      subject.insert '10'
-      subject.insert '10'
-      subject.insert '5'
+      2.times { subject.insert Coin::QUARTER }
+      2.times { subject.insert Coin::DIME }
+      subject.insert Coin::NICKEL
       subject.button 'candy'
-      expect(subject.coin_return).to eq '10'
+      expect(subject.coin_return).to eq Coin::DIME
     end
   end
 end
