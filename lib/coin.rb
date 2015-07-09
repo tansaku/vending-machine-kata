@@ -13,8 +13,9 @@ class Coin
 
   public
 
-  PENNY = self.new('1')
-  NICKEL = self.new('5')
-  DIME = self.new('10')
-  QUARTER = self.new('25')
+  PENNY = self.new '1'
+  NICKEL = self.new '5'
+  DIME = self.new '10'
+  QUARTER = self.new '25'
+
 end

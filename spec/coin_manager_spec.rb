@@ -1,9 +1,11 @@
 require 'coin_manager'
 
 describe CoinManager do
+
   it 'has zero total by default' do
     expect(subject.total).to eq 0
   end
+
   context 'valid coins' do
     it 'accepts a nickel and updates total' do
       subject.insert Coin::NICKEL
@@ -24,30 +26,28 @@ describe CoinManager do
       expect(subject.total).to eq 40
     end
   end
+
   context 'invalid coins' do
-    it 'rejects a penny and updates total' do
-      subject.insert '1'
+    it 'rejects a penny and does not update total' do
+      subject.insert Coin::PENNY
       expect(subject.total).to eq 0
     end
-    it 'rejects a non-coin and updates total' do
+    it 'rejects a non-coin and does not update total' do
       subject.insert '113r2qfasc'
       expect(subject.total).to eq 0
     end
   end
+
   describe '#make_change' do
-    it 'return coins given overpayment' do
-      subject.insert Coin::QUARTER
-      subject.insert Coin::QUARTER
-      subject.insert Coin::DIME
-      subject.insert Coin::DIME
+    it 'return dime given overpayment' do
+      2.times { subject.insert Coin::QUARTER }
+      2.times { subject.insert Coin::DIME }
       subject.insert Coin::NICKEL
       subject.make_change 65
       expect(subject.coin_return).to eq Coin::DIME
     end
-    it 'return coins given overpayment' do
-      subject.insert Coin::QUARTER
-      subject.insert Coin::QUARTER
-      subject.insert Coin::QUARTER
+    it 'return quarter given overpayment' do
+      3.times { subject.insert Coin::QUARTER }
       subject.insert Coin::DIME
       subject.insert Coin::NICKEL
       subject.make_change 65

@@ -12,7 +12,7 @@ class VendingMachine
     self.display = 'INSERT COIN'
     self.coin_manager = coin_manager_klass.new
     self.ready_to_reset = false
-    self.ready_to_insufficient_payment_reset = false
+    self.ready_to_reset_after_insufficient_payment = false
     self.payment_sufficient = false
   end
 
@@ -39,20 +39,25 @@ class VendingMachine
               :coin_return,
               :hopper
 
+ 
   attr_accessor :product,
                 :ready_to_reset,
-                :ready_to_insufficient_payment_reset,
+                :ready_to_reset_after_insufficient_payment,
                 :payment_sufficient,
                 :product_name,
                 :coin_manager
 
+  alias_method :product_selected?, :product
+  alias_method :ready_to_reset?, :ready_to_reset
+  alias_method :ready_to_reset_after_insufficient_payment?, :ready_to_reset_after_insufficient_payment
+  
   def select_product
     name_match = -> (p) { p.name == product_name }
     self.product = VALID_PRODUCTS.select(&name_match).first
   end
 
   def vend
-    return unless product
+    return unless product_selected?
     dispense_product
     coin_manager.make_change product.price
     self.coin_return = coin_manager.coin_return
@@ -68,19 +73,19 @@ class VendingMachine
   end
 
   def payment_sufficient?
-    @payment_sufficient ||= coin_manager.total >= product.price
+    self.payment_sufficient ||= coin_manager.total >= product.price
   end
 
   def handle_insufficient_payment_state
-    if ready_to_insufficient_payment_reset
+    if ready_to_reset_after_insufficient_payment?
       self.display = coin_manager.total > 0 ? "#{coin_manager.total} cents" : 'INSERT COIN'
-      self.ready_to_insufficient_payment_reset = false
+      self.ready_to_reset_after_insufficient_payment = false
     end
-    self.ready_to_insufficient_payment_reset = true if @display.start_with? 'PRICE'
+    self.ready_to_reset_after_insufficient_payment = true if @display.start_with? 'PRICE'
   end
 
   def handle_purchase_completed_state
-    initialize if ready_to_reset
+    initialize if ready_to_reset?
     self.ready_to_reset = true if @display == 'THANK YOU'
   end
 end

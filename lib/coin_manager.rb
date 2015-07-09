@@ -14,31 +14,30 @@ class CoinManager
   end
 
   def insert coin
-    if VALID_COINS.include? coin
-      coins.push(coin)
-      true
-    else
-      self.coin_return = coin 
-      false
-    end
+    VALID_COINS.include?(coin) ? coins.push(coin) : self.coin_return = coin
+    VALID_COINS.include? coin
   end
 
   def make_change price
     return if total <= price
-    coins.sort! { |a,b| b.value <=> a.value }
-    remainder = 0
-    used_coins = []
-    while true  
-      coin = coins[0]
-      remainder = price - total(used_coins) - coin.value
-      break if remainder < 0
-      used_coins << coins.shift
-    end
+    remainder = calculate_remainder_from price
     coins.delete coins.select { |c| c.value == -remainder }
     self.coin_return = coins.first
   end
   
   private
+
+  def calculate_remainder_from price
+    while true  
+      remainder = price - total(used_coins) - coins.first.value
+      return remainder if remainder < 0
+      used_coins << coins.shift
+    end
+  end
+
+  def used_coins
+    @used_coins ||= []
+  end
 
   attr_accessor :coins
   attr_writer :coin_return
