@@ -5,7 +5,11 @@ This is a Ruby solution to the first 2/3 features in https://github.com/guyroyse
 
 I used a feature-test:unit-test cylic approach of writing a high level feature test for each feature and then writing the related unit tests, followed refactoring, which ultimately involved extracting two additional classes, those of Coin and CoinManager.
 
-[TODO UML Diagram]
+![UML](https://www.dropbox.com/s/i6ll7934a9vfjfv/Screenshot%202015-07-09%2014.21.06.png?dl=1)
+
+[YUML of the above image](http://yuml.me/edit/05b1aecb))
+
+
 
 Outstanding issues
 ------------------
