@@ -11,11 +11,8 @@ class Coin
 
   attr_accessor :representation
 
-  public
-
-  PENNY = self.new '1'
-  NICKEL = self.new '5'
-  DIME = self.new '10'
-  QUARTER = self.new '25'
-
+  PENNY = new '1'
+  NICKEL = new '5'
+  DIME = new '10'
+  QUARTER = new '25'
 end

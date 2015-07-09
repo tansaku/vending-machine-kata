@@ -43,7 +43,7 @@ describe VendingMachine do
   context 'vending' do
 
     it 'has buttons to vend products' do
-      4.times{ subject.insert Coin::QUARTER }
+      4.times { subject.insert Coin::QUARTER }
       subject.button 'cola'
       expect(subject.display).to eq 'THANK YOU'
       expect(subject.display).to eq 'INSERT COIN'
@@ -102,6 +102,6 @@ describe VendingMachine do
         expect(subject.coin_return).to eq Coin::DIME
       end
     end
-    
+
   end
 end

@@ -39,7 +39,6 @@ class VendingMachine
               :coin_return,
               :hopper
 
- 
   attr_accessor :product,
                 :ready_to_reset,
                 :ready_to_reset_after_insufficient_payment,
@@ -49,11 +48,12 @@ class VendingMachine
 
   alias_method :product_selected?, :product
   alias_method :ready_to_reset?, :ready_to_reset
-  alias_method :ready_to_reset_after_insufficient_payment?, :ready_to_reset_after_insufficient_payment
-  
+  alias_method :ready_to_reset_after_insufficient_payment?,
+               :ready_to_reset_after_insufficient_payment
+
   def select_product
-    name_match = -> (p) { p.name == product_name }
-    self.product = VALID_PRODUCTS.select(&name_match).first
+    name_match = -> (product) { product.name == product_name }
+    self.product = VALID_PRODUCTS.find(&name_match)
   end
 
   def vend
@@ -78,10 +78,19 @@ class VendingMachine
 
   def handle_insufficient_payment_state
     if ready_to_reset_after_insufficient_payment?
-      self.display = coin_manager.total > 0 ? "#{coin_manager.total} cents" : 'INSERT COIN'
+      self.display = reset_display_after_insufficient_payment
       self.ready_to_reset_after_insufficient_payment = false
     end
-    self.ready_to_reset_after_insufficient_payment = true if @display.start_with? 'PRICE'
+    self.ready_to_reset_after_insufficient_payment = true if coins_remaining?
+  end
+
+  def coins_remaining?
+    @display.start_with? 'PRICE'
+  end
+
+  def reset_display_after_insufficient_payment
+    total = coin_manager.total
+    total > 0 ? "#{total} cents" : 'INSERT COIN'
   end
 
   def handle_purchase_completed_state

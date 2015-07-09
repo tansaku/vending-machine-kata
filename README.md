@@ -7,8 +7,6 @@ I used a feature-test:unit-test cylic approach of writing a high level feature t
 
 [TODO UML Diagram]
 
-
-
 Outstanding issues
 ------------------
 
@@ -16,7 +14,7 @@ Outstanding issues
 
 * Reasonably happy with CoinManager class as far as it has got, however one line in `make_change` stands out as being somewhat unreadable, i.e. `coins.delete coins.select { |c| c.value == -remainder }` - would likely be refactoring as subsequent features are added so leave for now
 
-* Coin constants create atomic pennies, nickels etc., might need to be their own objects in future, but fine for now.
+* Coin constants create atomic pennies, nickels etc., might need to be their own objects in future, but fine for now.  Future could also involve different coins inheriting from a parent coin class.
 
 * Product is just a data holder at present - could become a struct or is there more functionality to be handed over to it?
 
@@ -30,6 +28,8 @@ Outstanding issues
 
   * handle_insufficient_payment_state could be improved by extracting a few more methods and also relies on state of display as above issue
 
+  * not so happy with ``self.ready_to_reset_after_insufficient_payment = true if @display.start_with? 'PRICE'`` for reasons described above - line length also to long
+
 ### Tests
 
 *  vending_machine_spec - invalid coins context maybe should be in a integration test ...
@@ -37,3 +37,7 @@ Outstanding issues
 * want to get to `CoinManager#make_change manage multiple coin overpayment` and ` CoinManager#make_change manage coins in ascending order` pending tests
 
 * helper methods for vending_machine_integration_spec
+
+### Code Smells
+
+* should check this out in more detail - superficially feels like we don't need the variable ... [12]:CoinManager#total refers to coin_array more than self (FeatureEnvy) [https://github.com/troessner/reek/wiki/Feature-Envy]
