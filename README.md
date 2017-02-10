@@ -44,4 +44,4 @@ Outstanding issues
 
 ### Code Smells
 
-* should check this out in more detail - superficially feels like we don't need the variable ... [12]:CoinManager#total refers to coin_array more than self (FeatureEnvy) [https://github.com/troessner/reek/wiki/Feature-Envy]
+* should check this out in more detail - superficially feels like we don't need the variable ... [12]:CoinManager#total refers to coin_array more than self [FeatureEnvy](https://github.com/troessner/reek/wiki/Feature-Envy)
